@@ -1,47 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <title>Pokemon AR</title>
 
+    <!-- A-Frame + AR.js -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-    <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js'></script>
-
-    <title>Poke AR</title>
-
+    <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
+    <link href="https://fonts.cdnfonts.com/css/pokemon-solid" rel="stylesheet">
 </head>
-<body>
+<body style="margin:0; overflow:hidden;">
+<a-scene embedded arjs>
+    <!-- Caméra + curseur souris pour cliquer sur les entités .clickable -->
+    <a-entity id="cameraRig">
+        <a-entity id="camera" camera position="0 0 0"></a-entity>
+        <a-entity cursor="fuse:false; rayOrigin: mouse;"
+                  raycaster="objects: .clickable"></a-entity>
+    </a-entity>
 
-    <a-scene embedded arjs>
-        <a-marker type="pattern"
-                  url="./marker/pattern-pikachu.patt"
-                  id="mPattern"
-                  emitevents="true"
-                  smooth="true" smoothCount="5" smoothTolerance="0.01" smoothThreshold="5">
-            <a-text value="Pikachu"></a-text>
-            <a-entity gltf-model="url(./asset/pikachu.glb)" scale="0.02 0.02 0.02"></a-entity>
-        </a-marker>
+    <!-- PIKACHU -->
+    <a-marker type="pattern"
+              url="./marker/pattern-pikachu.patt"
+              id="pikaPattern"
+              emitevents="true">
+        <!-- Le modèle est cliquable -->
+        <a-entity id="pika"
+                  class="clickable"
+                  gltf-model="url(./asset/pikachu.glb)"
+                  scale="0.015 0.015 0.015"
+                  position="0 0 0">
+        </a-entity>
 
-        <a-marker type="pattern"
-                  url="./marker/pattern-mew.patt"
-                  id="mPattern"
-                  emitevents="true">
-            <a-text value="Pikachu"></a-text>
-            <a-entity gltf-model="url(./asset/mew.glb)" scale="0.02 0.02 0.02"></a-entity>
-        </a-marker>
+        <!-- Bulle d'information (cachée par défaut) -->
+        <a-entity id="pikaInfo" visible="false" position="0.7 0.7 0" look-at="#camera">
+            <!-- Panneau de fond semi-opaque pour lisibilité -->
 
-        <a-entity camera cursor="fuse:false; rayOrigin: mouse;" raycaster="objectif: .clickable"></a-entity>
+            <!-- Petit triangle 'pointe' vers le Pokémon -->
+            <a-triangle position="-0.20 -0.07 0.001"
+                        vertex-a="0 0 0"
+                        vertex-b="0.06 0.04 0"
+                        vertex-c="0.06 -0.04 0"
+                        material="color: #111; opacity: 0.8"></a-triangle>
 
-        <a-marker preset="kanji">
-            <a-entity gltf-model="url(./asset/lucario.glb)" scale="1 1 1"></a-entity>
-        </a-marker>
+            <!-- Texte (nom, type, PV) en blanc, aligné à gauche -->
+            <a-entity position="-0.4 0.002 0.002">
+                <a-text
+                        value="Nom: Pikachu\nType: Electrik\nPV: 35/35"
+                        rotation="0 0 0"
+                        color="#FFF"
+                        font-family="Pokemon Solid"
+                        width="2"
+                        shader="msdf">
+                </a-text>
+            </a-entity>
 
-        <a-marker type="pattern"
-                  url="./marker/pattern-lucario.patt"
-                  id="mPattern"
-                  emitevents="true">
-            <a-entity gltf-model="url(./asset/lucario.glb)" scale="1 1 1"></a-entity>
-        </a-marker>
-    </a-scene>
+        </a-entity>
+    </a-marker>
 
+    <!-- MEW -->
+    <a-marker type="pattern"
+              url="./marker/pattern-mew.patt"
+              id="mewPattern"
+              emitevents="true">
+        <a-entity gltf-model="url(./asset/mew.glb)" scale="0.02 0.02 0.02"></a-entity>
+    </a-marker>
+
+    <!-- LUXRAY -->
+    <a-marker type="pattern"
+              url="./marker/pattern-luxray.patt"
+              id="luxrayPattern"
+              emitevents="true">
+        <a-entity gltf-model="url(./asset/pakemon_luxray.glb)" scale="1 1 1"></a-entity>
+    </a-marker>
+</a-scene>
+
+<script>
+    // --- Sélecteurs
+    const pika = document.getElementById('pika');
+    const pikaInfo = document.getElementById('pikaInfo');
+    const pikaMarker = document.getElementById('pikaPattern');
+
+    // --- Toggle bulle au clic sur le modèle
+    pika.addEventListener('click', () => {
+        pikaInfo.setAttribute('visible', !pikaInfo.getAttribute('visible'));
+    });
+
+    // --- Fermer la bulle quand on perd le marqueur (évite de "garder" une bulle à l'écran)
+    pikaMarker.addEventListener('markerLost', () => {
+        pikaInfo.setAttribute('visible', false);
+    });
+
+    // --- (Optionnel) Ouvrir automatiquement la bulle quand le marqueur revient
+    // pikaMarker.addEventListener('markerFound', () => {
+    //   pikaInfo.setAttribute('visible', true);
+    // });
+
+    // --- Astuce: si vous changez l’échelle/position du modèle, ajustez la position de la bulle (x=à droite)
+    // pikaInfo.setAttribute('position', '0.3 0.12 0');
+</script>
 </body>
 </html>
