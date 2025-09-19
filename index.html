@@ -159,6 +159,48 @@
             </a-entity>
         </a-entity>
     </a-marker>
+
+    <!-- ECTOPLASMA -->
+    <a-marker preset="hiro" id="hiroPattern">
+        <a-entity
+                gltf-model="url(./asset/ectoplasma.glb)"
+                scale="0.017 0.017 0.017"
+                id="ectoplasma"
+                class="clickable"
+                position="0 0 0">
+        </a-entity>
+        <!-- Bulle d'information (cachée par défaut) -->
+        <a-entity id="ectoplasmaInfo" visible="false" position="0.3 0.12 0" look-at="#camera">
+            <a-entity id="ectoplasmaSound"
+                      sound="src: url(./sounds/ectoplasmaSound.mp3);
+                     autoplay: false;
+                     loop: false;
+                     positional: false;
+                     volume: 0.9">
+            </a-entity>
+            <!-- Panneau de fond semi-opaque pour lisibilité -->
+            <a-plane width="0.36" height="0.22" material="color: #111; opacity: 0.8"></a-plane>
+
+            <!-- Petit triangle 'pointe' vers le Pokémon -->
+            <a-triangle position="-0.20 -0.07 0.001"
+                        vertex-a="0 0 0"
+                        vertex-b="0.06 0.04 0"
+                        vertex-c="0.06 -0.04 0"
+                        material="color: #111; opacity: 0.8"></a-triangle>
+
+            <!-- Texte (nom, type, PV) en blanc, aligné à gauche -->
+            <a-entity position="-0.6 0.002 0.002">
+                <a-text
+                        value="Nom: Ectoplasma\nType: Spectre\nPV: 35/35"
+                        rotation="0 0 0"
+                        color="#FFF"
+                        font-family="Pokemon Solid"
+                        width="2"
+                        shader="msdf">
+                </a-text>
+            </a-entity>
+        </a-entity>
+    </a-marker>
 </a-scene>
 
 <script>
@@ -202,7 +244,6 @@
     luxrayMarker.addEventListener('markerFound', () => luxraySound.components.sound.playSound());
     luxrayMarker.addEventListener('markerLost',  () => luxraySound.components.sound.stopSound());
 
-
     const pika = document.getElementById('pika');
     const pikaInfo = document.getElementById('pikaInfo');
     const pikaMarker = document.getElementById('pikaPattern');
@@ -221,6 +262,25 @@
     // --- son
     pikaMarker.addEventListener('markerFound', () => pikaSound.components.sound.playSound());
     pikaMarker.addEventListener('markerLost',  () => pikaSound.components.sound.stopSound());
+
+    const ecto = document.getElementById('ectoplasma');
+    const ectoInfo = document.getElementById('ectoplasmaInfo');
+    const ectoMarker = document.getElementById('hiroPattern');
+    const ectoSound = document.getElementById('ectoplasmaSound');
+
+    // --- Toggle bulle au clic sur le modèle
+    ecto.addEventListener('click', () => {
+        ectoInfo.setAttribute('visible', !ectoInfo.getAttribute('visible'));
+    });
+
+    // --- Fermer la bulle quand on perd le marqueur (évite de "garder" une bulle à l'écran)
+    ectoMarker.addEventListener('markerLost', () => {
+        ectoInfo.setAttribute('visible', false);
+    });
+
+    // --- son
+    ectoMarker.addEventListener('markerFound', () => ectoSound.components.sound.playSound());
+    ectoMarker.addEventListener('markerLost',  () => ectoSound.components.sound.stopSound());
 
     // ===== Déverrouillage audio (mobile/web autoplay) =====
     const unmuteBtn = document.getElementById('unmute');
