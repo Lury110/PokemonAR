@@ -35,6 +35,8 @@
         <a-entity id="pikaInfo" visible="false" position="0.7 0.7 0" look-at="#camera">
             <!-- Panneau de fond semi-opaque pour lisibilité -->
 
+            <a-plane width="0.36" height="0.22" material="color: #111; opacity: 0.8"></a-plane>
+
             <!-- Petit triangle 'pointe' vers le Pokémon -->
             <a-triangle position="-0.20 -0.07 0.001"
                         vertex-a="0 0 0"
@@ -62,7 +64,39 @@
               url="./marker/pattern-mew.patt"
               id="mewPattern"
               emitevents="true">
-        <a-entity gltf-model="url(./asset/mew.glb)" scale="0.02 0.02 0.02"></a-entity>
+        <!-- Le modèle est cliquable -->
+        <a-entity
+                gltf-model="url(./asset/mew.glb)"
+                scale="0.03 0.03 0.03"
+                class="clickable"
+                id="mew"
+                position="0 0 0">
+        </a-entity>
+
+        <!-- Bulle d'information (cachée par défaut) -->
+        <a-entity id="mewInfo" visible="false" position="0.3 0.12 0" look-at="#camera">
+            <!-- Panneau de fond semi-opaque pour lisibilité -->
+            <a-plane width="0.36" height="0.22" material="color: #111; opacity: 0.8"></a-plane>
+
+            <!-- Petit triangle 'pointe' vers le Pokémon -->
+            <a-triangle position="-0.20 -0.07 0.001"
+                        vertex-a="0 0 0"
+                        vertex-b="0.06 0.04 0"
+                        vertex-c="0.06 -0.04 0"
+                        material="color: #111; opacity: 0.8"></a-triangle>
+
+            <!-- Texte (nom, type, PV) en blanc, aligné à gauche -->
+            <a-entity position="-0.4 0.002 0.002">
+                <a-text
+                        value="Nom: Mew\nType: Psy\nPV: 35/35"
+                        rotation="0 0 0"
+                        color="#FFF"
+                        font-family="Pokemon Solid"
+                        width="2"
+                        shader="msdf">
+                </a-text>
+            </a-entity>
+        </a-entity>
     </a-marker>
 
     <!-- LUXRAY -->
@@ -70,12 +104,70 @@
               url="./marker/pattern-luxray.patt"
               id="luxrayPattern"
               emitevents="true">
-        <a-entity gltf-model="url(./asset/pakemon_luxray.glb)" scale="1 1 1"></a-entity>
+        <a-entity
+                gltf-model="url(./asset/pakemon_luxray.glb)"
+                scale="1 1 1"
+                id="luxray"
+                class="clickable"
+                position="0 0 0">
+        </a-entity>
+        <!-- Bulle d'information (cachée par défaut) -->
+        <a-entity id="luxrayInfo" visible="false" position="0.3 0.12 0" look-at="#camera">
+            <!-- Panneau de fond semi-opaque pour lisibilité -->
+            <a-plane width="0.36" height="0.22" material="color: #111; opacity: 0.8"></a-plane>
+
+            <!-- Petit triangle 'pointe' vers le Pokémon -->
+            <a-triangle position="-0.20 -0.07 0.001"
+                        vertex-a="0 0 0"
+                        vertex-b="0.06 0.04 0"
+                        vertex-c="0.06 -0.04 0"
+                        material="color: #111; opacity: 0.8"></a-triangle>
+
+            <!-- Texte (nom, type, PV) en blanc, aligné à gauche -->
+            <a-entity position="-0.4 0.002 0.002">
+                <a-text
+                        value="Nom: Luxray\nType: Electrik\nPV: 35/35"
+                        rotation="0 0 0"
+                        color="#FFF"
+                        font-family="Pokemon Solid"
+                        width="2"
+                        shader="msdf">
+                </a-text>
+            </a-entity>
+        </a-entity>
     </a-marker>
 </a-scene>
 
 <script>
     // --- Sélecteurs
+    const mew = document.getElementById('mew');
+    const mewInfo = document.getElementById('mewInfo');
+    const mewMarker = document.getElementById('mewPattern');
+
+    // --- Toggle bulle au clic sur le modèle
+    mew.addEventListener('click', () => {
+        mewInfo.setAttribute('visible', !mewInfo.getAttribute('visible'));
+    });
+
+    // --- Fermer la bulle quand on perd le marqueur (évite de "garder" une bulle à l'écran)
+    mewMarker.addEventListener('markerLost', () => {
+        mewInfo.setAttribute('visible', false);
+    });
+
+    const luxray = document.getElementById('luxray');
+    const luxrayInfo = document.getElementById('luxrayInfo');
+    const luxrayMarker = document.getElementById('luxrayPattern');
+
+    // --- Toggle bulle au clic sur le modèle
+    luxray.addEventListener('click', () => {
+        luxrayInfo.setAttribute('visible', !luxrayInfo.getAttribute('visible'));
+    });
+
+    // --- Fermer la bulle quand on perd le marqueur (évite de "garder" une bulle à l'écran)
+    luxrayMarker.addEventListener('markerLost', () => {
+        luxrayInfo.setAttribute('visible', false);
+    });
+
     const pika = document.getElementById('pika');
     const pikaInfo = document.getElementById('pikaInfo');
     const pikaMarker = document.getElementById('pikaPattern');
@@ -91,9 +183,9 @@
     });
 
     // --- (Optionnel) Ouvrir automatiquement la bulle quand le marqueur revient
-    // pikaMarker.addEventListener('markerFound', () => {
-    //   pikaInfo.setAttribute('visible', true);
-    // });
+    //    pikaMarker.addEventListener('markerFound', () => {
+    //    pikaInfo.setAttribute('visible', true);
+    //  });
 
     // --- Astuce: si vous changez l’échelle/position du modèle, ajustez la position de la bulle (x=à droite)
     // pikaInfo.setAttribute('position', '0.3 0.12 0');
