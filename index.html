@@ -8,8 +8,10 @@
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
     <link href="https://fonts.cdnfonts.com/css/pokemon-solid" rel="stylesheet">
+
 </head>
 <body style="margin:0; overflow:hidden;">
+
 <a-scene embedded arjs>
     <!-- Caméra + curseur souris pour cliquer sur les entités .clickable -->
     <a-entity id="cameraRig">
@@ -33,6 +35,13 @@
 
         <!-- Bulle d'information (cachée par défaut) -->
         <a-entity id="pikaInfo" visible="false" position="0.7 0.7 0" look-at="#camera">
+            <a-entity id="pikaSound"
+                      sound="src: url(./sounds/pikachuSound.mp3);
+                     autoplay: false;
+                     loop: false;
+                     positional: false;
+                     volume: 0.9">
+            </a-entity>
             <!-- Panneau de fond semi-opaque pour lisibilité -->
 
             <a-plane width="0.36" height="0.22" material="color: #111; opacity: 0.8"></a-plane>
@@ -75,6 +84,13 @@
 
         <!-- Bulle d'information (cachée par défaut) -->
         <a-entity id="mewInfo" visible="false" position="0.3 0.12 0" look-at="#camera">
+            <a-entity id="mewSound"
+                      sound="src: url(./sounds/mewSound.mp3);
+                     autoplay: false;
+                     loop: false;
+                     positional: false;
+                     volume: 0.9">
+            </a-entity>
             <!-- Panneau de fond semi-opaque pour lisibilité -->
             <a-plane width="0.36" height="0.22" material="color: #111; opacity: 0.8"></a-plane>
 
@@ -113,6 +129,13 @@
         </a-entity>
         <!-- Bulle d'information (cachée par défaut) -->
         <a-entity id="luxrayInfo" visible="false" position="0.3 0.12 0" look-at="#camera">
+            <a-entity id="luxraySound"
+                      sound="src: url(./sounds/luxraySound.mp3);
+                     autoplay: false;
+                     loop: false;
+                     positional: false;
+                     volume: 0.9">
+            </a-entity>
             <!-- Panneau de fond semi-opaque pour lisibilité -->
             <a-plane width="0.36" height="0.22" material="color: #111; opacity: 0.8"></a-plane>
 
@@ -124,7 +147,7 @@
                         material="color: #111; opacity: 0.8"></a-triangle>
 
             <!-- Texte (nom, type, PV) en blanc, aligné à gauche -->
-            <a-entity position="-0.4 0.002 0.002">
+            <a-entity position="-0.6 0.002 0.002">
                 <a-text
                         value="Nom: Luxray\nType: Electrik\nPV: 35/35"
                         rotation="0 0 0"
@@ -143,6 +166,7 @@
     const mew = document.getElementById('mew');
     const mewInfo = document.getElementById('mewInfo');
     const mewMarker = document.getElementById('mewPattern');
+    const mewSound = document.getElementById('mewSound');
 
     // --- Toggle bulle au clic sur le modèle
     mew.addEventListener('click', () => {
@@ -154,9 +178,15 @@
         mewInfo.setAttribute('visible', false);
     });
 
+    // --- son
+    mewMarker.addEventListener('markerFound', () => mewSound.components.sound.playSound());
+    mewMarker.addEventListener('markerLost',  () => mewSound.components.sound.stopSound());
+
     const luxray = document.getElementById('luxray');
     const luxrayInfo = document.getElementById('luxrayInfo');
     const luxrayMarker = document.getElementById('luxrayPattern');
+    const luxraySound = document.getElementById('luxraySound');
+
 
     // --- Toggle bulle au clic sur le modèle
     luxray.addEventListener('click', () => {
@@ -168,9 +198,15 @@
         luxrayInfo.setAttribute('visible', false);
     });
 
+    // --- son
+    luxrayMarker.addEventListener('markerFound', () => luxraySound.components.sound.playSound());
+    luxrayMarker.addEventListener('markerLost',  () => luxraySound.components.sound.stopSound());
+
+
     const pika = document.getElementById('pika');
     const pikaInfo = document.getElementById('pikaInfo');
     const pikaMarker = document.getElementById('pikaPattern');
+    const pikaSound = document.getElementById('pikaSound');
 
     // --- Toggle bulle au clic sur le modèle
     pika.addEventListener('click', () => {
@@ -182,13 +218,35 @@
         pikaInfo.setAttribute('visible', false);
     });
 
-    // --- (Optionnel) Ouvrir automatiquement la bulle quand le marqueur revient
-    //    pikaMarker.addEventListener('markerFound', () => {
-    //    pikaInfo.setAttribute('visible', true);
-    //  });
+    // --- son
+    pikaMarker.addEventListener('markerFound', () => pikaSound.components.sound.playSound());
+    pikaMarker.addEventListener('markerLost',  () => pikaSound.components.sound.stopSound());
 
-    // --- Astuce: si vous changez l’échelle/position du modèle, ajustez la position de la bulle (x=à droite)
-    // pikaInfo.setAttribute('position', '0.3 0.12 0');
+    // ===== Déverrouillage audio (mobile/web autoplay) =====
+    const unmuteBtn = document.getElementById('unmute');
+    unmuteBtn.addEventListener('click', async () => {
+        try {
+            const scene = document.querySelector('a-scene');
+            // différents chemins selon versions d'A-Frame
+            const ctx = (scene.systems && scene.systems.sound && scene.systems.sound.context) ||
+                (AFRAME.audioContext);
+            if (ctx && ctx.state !== 'running') {
+                await ctx.resume();
+            }
+            // petit “ping” silencieux pour initialiser (optionnel)
+            [pikaSound, mewSound, luxraySound].forEach(e => {
+                if (e.components.sound && e.components.sound.pool.children.length === 0) {
+                    // force la création du buffer en jouant/stop instantanément
+                    e.components.sound.playSound();
+                    e.components.sound.stopSound();
+                }
+            });
+            unmuteBtn.classList.add('hidden');
+        } catch (e) {
+            console.warn('Impossible de déverrouiller l’audio:', e);
+        }
+    });
+
 </script>
 </body>
 </html>
